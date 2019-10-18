@@ -12,6 +12,7 @@ class CPU:
         self.register = [0] * 8
         self.pc = 0
         self.sp_index = 7
+        self.equal_flag = 0
 
     def load(self):
         """Load a program into memory."""
@@ -72,38 +73,120 @@ class CPU:
         #     0b00000001,  # HLT
         # ]
 
+        # program = [
+        #     0b10000010,  # LDI R1,MULT2PRINT
+        #     0b00000001,
+        #     0b00011000,
+        #     0b10000010, # LDI R0,10
+        #     0b00000000,
+        #     0b00001010,
+        #     0b01010000,  # CALL R1
+        #     0b00000001,
+        #     0b10000010,  # LDI R0,15
+        #     0b00000000,
+        #     0b00001111,
+        #     0b01010000,  # CALL R1
+        #     0b00000001,
+        #     0b10000010,  # LDI R0,18
+        #     0b00000000,
+        #     0b00010010,
+        #     0b01010000,  # CALL R1
+        #     0b00000001,
+        #     0b10000010,  # LDI R0,30
+        #     0b00000000,
+        #     0b00011110,
+        #     0b01010000,  # CALL R1
+        #     0b00000001,
+        #     0b00000001, # HLT
+        #     # MUL2PRINT (address 24):
+        #     0b10100000,  # ADD R0,R0
+        #     0b00000000,
+        #     0b00000000,
+        #     0b01000111,  # PRN R0
+        #     0b00000000,
+        #     0b00010001,  # RET
+        # ]
+
         program = [
-            0b10000010,  # LDI R1,MULT2PRINT
-            0b00000001,
-            0b00011000,
-            0b10000010, # LDI R0,10
+            0b10000010,  # LDI R0,10
             0b00000000,
             0b00001010,
-            0b01010000,  # CALL R1
+            0b10000010,  # LDI R1,20
             0b00000001,
-            0b10000010,  # LDI R0,15
+            0b00010100,
+            0b10000010,  # LDI R2,TEST1
+            0b00000010,
+            0b00010011,
+            0b10100111,  # CMP R0,R1
             0b00000000,
-            0b00001111,
-            0b01010000,  # CALL R1
             0b00000001,
-            0b10000010,  # LDI R0,18
-            0b00000000,
-            0b00010010,
-            0b01010000,  # CALL R1
+            0b01010101,  # JEQ R2
+            0b00000010,
+            0b10000010,  # LDI R3,1
+            0b00000011,
             0b00000001,
-            0b10000010,  # LDI R0,30
+            0b01000111,  # PRN R3
+            0b00000011,
+            # TEST1 (address 19):
+            0b10000010,  # LDI R2,TEST2
+            0b00000010,
+            0b00100000,
+            0b10100111, # CMP R0,R1
             0b00000000,
-            0b00011110,
-            0b01010000,  # CALL R1
             0b00000001,
-            0b00000001, # HLT
-            # MUL2PRINT (address 24):
-            0b10100000,  # ADD R0,R0
+            0b01010110,  # JNE R2
+            0b00000010,
+            0b10000010,  # LDI R3,2
+            0b00000011,
+            0b00000010,
+            0b01000111,  # PRN R3
+            0b00000011,
+            # TEST2 (address 32):
+            0b10000010,  # LDI R1,10
+            0b00000001,
+            0b00001010,
+            0b10000010,  # LDI R2,TEST3
+            0b00000010,
+            0b00110000,
+            0b10100111,  # CMP R0,R1
             0b00000000,
+            0b00000001,
+            0b01010101,  # JEQ R2
+            0b00000010,
+            0b10000010,  # LDI R3,3
+            0b00000011,
+            0b00000011,
+            0b01000111,  # PRN R3
+            0b00000011,
+            # TEST3 (address 48):
+            0b10000010,  # LDI R2,TEST4
+            0b00000010,
+            0b00111101,
+            0b10100111,  # CMP R0,R1
             0b00000000,
-            0b01000111,  # PRN R0
-            0b00000000,
-            0b00010001,  # RET
+            0b00000001,
+            0b01010110,  # JNE R2
+            0b00000010,
+            0b10000010,  # LDI R3,4
+            0b00000011,
+            0b00000100,
+            0b01000111, # PRN R3
+            0b00000011,
+            # TEST4 (address 61):
+            0b10000010,  # LDI R3,5
+            0b00000011,
+            0b00000101,
+            0b01000111,  # PRN R3
+            0b00000011,
+            0b10000010, # LDI R2,TEST5
+            0b00000010,
+            0b01001001,
+            0b01010100,  # JMP R2
+            0b00000010,
+            0b01000111,  # PRN R3
+            0b00000011,
+            # TEST5 (address 73):
+            0b00000001,  # HLT
         ]
 
         for instruction in program:
@@ -153,18 +236,26 @@ class CPU:
         """ALU operations."""
 
         if op == "LDI":
-            print("opA", reg_a, "opB", reg_b)
+            print("LDI: opA", reg_a, "opB", reg_b)
             # self.register[reg_a] += self.register[reg_b]
             self.register[reg_a] = reg_b
-            print("Register", self.register[reg_a])
+            # print("Register", self.register[reg_a])
             return self.register[reg_a]
 
         elif op == "MUL":
-            print("opA", reg_a, "opB", reg_b)
+            print("MUL: opA", reg_a, "opB", reg_b)
             # self.register[reg_a] = self.register[reg_b]*self.register[reg_a]
             self.register[reg_a] *= self.register[reg_b]
-            print("Register at", self.register[reg_a])
+            # print("Register at", self.register[reg_a])
             return self.register[reg_a]
+        
+        elif op == "CMP":
+            print("CMP: opA", reg_a, "opB", reg_b)
+            if self.register[reg_a] == self.register[reg_b]:
+                self.equal_flag = 1
+            else:
+                self.equal_flag = 0
+            return self.equal_flag
         # elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -198,9 +289,11 @@ class CPU:
         MUL = 0b10100010
         PUSH = 0b01000101
         POP = 0b01000110
-        CALL = 0b01010000 
+        CALL = 0b01010000
         RET = 0b00010001
         ADD = 0b10100000
+        # Sprint Instructions
+        CMP = 0b10100111
 
         running = True
 
@@ -232,7 +325,7 @@ class CPU:
 
             elif IR == ADD:
                 added = self.register[operand_a] + self.register[operand_b]
-                print("ADD:", self.register[operand_a], "+", self.register[operand_b], "=", added)
+                print("ADD:", self.register[operand_a],"+", self.register[operand_b], "=", added)
                 self.pc += 3
 
             elif IR == PUSH:
@@ -279,6 +372,14 @@ class CPU:
                 print("IR == HLT")
                 print("PC at HLT", self.pc)
                 running = False
+
+            # Sprint Instructions
+            elif IR == CMP:
+                print("CMP")
+                equal_status = self.alu("MUL", operand_a, operand_b)
+                print("Equal_Status Value:", equal_status)
+                self.pc += 3
+                pass
 
             else:
                 print("IR == ELSE")

@@ -107,6 +107,8 @@ class CPU:
         #     0b00010001,  # RET
         # ]
 
+        # Sprint Program
+        # Prints 1, 4, 5 from PRN
         program = [
             0b10000010,  # LDI R0,10
             0b00000000,

@@ -253,9 +253,10 @@ class CPU:
             print("CMP: opA", reg_a, "opB", reg_b)
             if self.register[reg_a] == self.register[reg_b]:
                 self.equal_flag = 1
+                return self.equal_flag
             else:
                 self.equal_flag = 0
-            return self.equal_flag
+                return self.equal_flag
         # elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -376,10 +377,9 @@ class CPU:
             # Sprint Instructions
             elif IR == CMP:
                 print("CMP")
-                equal_status = self.alu("MUL", operand_a, operand_b)
+                equal_status = self.alu("CMP", operand_a, operand_b)
                 print("Equal_Status Value:", equal_status)
                 self.pc += 3
-                pass
 
             else:
                 print("IR == ELSE")

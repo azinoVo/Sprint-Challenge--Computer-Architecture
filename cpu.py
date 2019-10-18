@@ -259,6 +259,32 @@ class CPU:
             else:
                 self.equal_flag = 0
                 return self.equal_flag
+
+        elif op == "AND":
+            self.register[reg_a] = self.register[reg_a] & self.register[reg_b]
+            return self.register[reg_a]
+
+        elif op == "OR":
+            self.register[reg_a] = self.register[reg_a] | self.register[reg_b]
+            return self.register[reg_a]
+
+        elif op == "XOR":
+            self.register[reg_a] = self.register[reg_a] ^ self.register[reg_b]
+            return self.register[reg_a]
+
+        elif op == "NOT":
+            self.register[reg_a] = -1 * self.register[reg_a] - 1
+            return self.register[reg_a]
+
+        elif op == "MOD":
+            if reg_b == 0:
+                print("Unable to divide by zero.")
+                sys.exit(1)
+            else:
+                remainder = self.register[reg_a] % self.register[reg_b]
+                self.register[reg_a] = remainder
+                return remainder
+
         # elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -300,6 +326,14 @@ class CPU:
         JMP = 0b01010100
         JEQ = 0b01010101
         JNE = 0b01010110
+        # Bitwise Operations
+        AND = 0b10101000
+        OR = 0b10101010
+        XOR = 0b10101011
+        NOT = 0b01101001
+        SHL = 0b10101100
+        SHR = 0b10101101
+        MOD = 0b10100100
 
         running = True
 
@@ -415,6 +449,44 @@ class CPU:
                     self.pc += 2
                 else:
                     print("ERROR, flag should only be 0 or 1.") 
+            # Bitwise Operations
+            # AND = 10101000
+            # OR = 10101010
+            # XOR = 10101011
+            # NOT = 01101001
+            # SHL = 10101100
+            # SHR = 10101101
+            # MOD = 10100100
+            elif IR == AND:
+                and_result = self.alu("AND", operand_a, operand_b)
+                print("AND", and_result)
+                self.pc += 3
+
+            elif IR == OR:
+                or_result = self.alu("OR", operand_a, operand_b)
+                print("OR", or_result)
+                self.pc += 3
+
+            elif IR == XOR:
+                xor_result = self.alu("XOR", operand_a, operand_b)
+                print("XOR", xor_result)
+                self.pc += 3
+
+            elif IR == NOT:
+                not_result = self.alu("NOT", operand_a)
+                print("NOT", not_result)
+                self.pc += 2
+
+            elif IR == SHL:
+                pass
+
+            elif IR == SHR:
+                pass
+
+            elif IR == MOD:
+                mod_result = self.alu("MOD", operand_a, operand_b)
+                print("MOD", mod_result)
+                self.pc += 3
 
             else:
                 print("IR == ELSE, Last PC:", self.pc)

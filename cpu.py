@@ -8,7 +8,7 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        self.ram = [0] * 75
+        self.ram = [0] * 125
         self.register = [0] * 8
         self.pc = 0
         self.sp_index = 7
@@ -295,6 +295,9 @@ class CPU:
         ADD = 0b10100000
         # Sprint Instructions
         CMP = 0b10100111
+        JMP = 0b01010100
+        JEQ = 0b01010101
+        JNE = 0b01010110
 
         running = True
 
@@ -376,13 +379,43 @@ class CPU:
 
             # Sprint Instructions
             elif IR == CMP:
+                # Compare the values in two registers.
+                # If they are equal, set the Equal `E` flag to 1, otherwise set it to 0.
                 print("CMP")
                 equal_status = self.alu("CMP", operand_a, operand_b)
                 print("Equal_Status Value:", equal_status)
                 self.pc += 3
 
+            elif IR == JMP:
+                # Jump to the address stored in the given register.
+                # Set the `PC` to the address stored in the given register.
+                print("JMP")
+                self.pc = self.register[operand_a]
+
+            elif IR == JEQ:
+                # If `equal` flag is set (true), 
+                # jump to the address stored in the given register.
+                print("JEQ")
+                if self.equal_flag == 1:
+                    self.pc = self.register[operand_a]
+                elif self.equal_flag == 0:
+                    self.pc += 2
+                else:
+                    print("ERROR, flag should only be 0 or 1.")
+
+            elif IR == JNE:
+                # If `E` flag is clear (false, 0), 
+                # jump to the address stored in the given register.
+                print("JNE")
+                if self.equal_flag == 0:
+                    self.pc = self.register[operand_a]
+                elif self.equal_flag == 1:
+                    self.pc += 2
+                else:
+                    print("ERROR, flag should only be 0 or 1.") 
+
             else:
-                print("IR == ELSE")
+                print("IR == ELSE, Last PC:", self.pc)
                 sys.exit(1)
 
 
